@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <title>Vida de Heroi</title>
   <link rel="icon" type="image/png" href="assets/vida-de-heroi-icon.png">
   <link rel="apple-touch-icon" href="assets/vida-de-heroi-icon.png">
@@ -19,7 +19,12 @@
     .touch .group { display:flex; gap:8px; flex-wrap:wrap; }
     .touch button { width:clamp(54px,14vw,76px); min-height:54px; border:1px solid #53627d; border-radius:12px; background:linear-gradient(#253653,#182238); color:#fff; font-weight:800; font-size:clamp(11px,2.8vw,14px); touch-action:none; box-shadow:0 4px 0 #0c1322, inset 0 1px rgba(255,255,255,.12); }
     .touch button:active { background:#35628b; transform:translateY(1px); }
-    @media (min-width:800px) { .touch { display:none; } }
+    .utility { display:flex; justify-content:center; gap:8px; margin-top:10px; }
+    .utility button { border:1px solid #53627d; border-radius:8px; background:#182238; color:#d7e1ec; padding:8px 14px; font-weight:700; }
+    main:fullscreen { width:100vw; height:100vh; padding:10px; background:#080d19; }
+    main:fullscreen .wrap { max-height:calc(100vh - 120px); margin:auto; }
+    @media (min-width:800px) { .touch { display:none; } .utility { display:none; } }
+    @media (max-width:460px) { main { padding:8px; } h1 { text-align:center; } .touch { gap:6px; } .touch .group { gap:5px; } .touch button { width:calc((100vw - 54px)/5); min-height:52px; padding:4px 2px; } .help { font-size:11px; } }
     kbd { padding:2px 6px; border:1px solid #53627d; border-radius:4px; background:#182238; color:#fff; }
   </style>
 </head>
@@ -28,6 +33,7 @@
   <h1>Vida de Heroi</h1>
   <div class="wrap"><canvas id="game" width="1152" height="648"></canvas></div>
   <div class="touch" aria-label="Controles de toque"><div class="group"><button data-key="ArrowLeft" aria-label="Mover para esquerda">◀</button><button data-key="ArrowRight" aria-label="Mover para direita">▶</button></div><div class="group"><button data-key="ShiftLeft">DASH</button><button data-key="KeyJ">ATK</button><button data-key="KeyL">BLOQ.</button><button data-key="Space">PULO</button><button data-key="KeyE">ABRIR</button></div></div>
+  <div class="utility"><button data-key="Escape" type="button">⏸ PAUSA</button><button id="fullscreenBtn" type="button">⛶ TELA CHEIA</button></div>
   <div class="help"><kbd>A</kbd><kbd>D</kbd> mover &nbsp; <kbd>W</kbd> ou <kbd>Espaco</kbd> pular &nbsp; <kbd>J</kbd> atacar &nbsp; <kbd>L</kbd> bloquear &nbsp; <kbd>E</kbd> interagir</div>
 </main>
 <script>
@@ -40,6 +46,7 @@ const keys=new Set(); let pressed=new Set();
 addEventListener('keydown',e=>{ if(!keys.has(e.code)) pressed.add(e.code); keys.add(e.code); unlockAudio(); if(['Space','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault(); });
 addEventListener('keyup',e=>keys.delete(e.code));
 document.querySelectorAll('[data-key]').forEach(button=>{const code=button.dataset.key;button.addEventListener('pointerdown',e=>{e.preventDefault();button.setPointerCapture?.(e.pointerId);unlockAudio();keys.add(code);pressed.add(code);});['pointerup','pointercancel','pointerleave','lostpointercapture'].forEach(type=>button.addEventListener(type,e=>{e.preventDefault();keys.delete(code);}));});
+const fullscreenBtn=document.getElementById('fullscreenBtn');fullscreenBtn?.addEventListener('click',async()=>{unlockAudio();try{if(!document.fullscreenElement)await document.querySelector('main').requestFullscreen();else await document.exitFullscreen();}catch(e){msg='Tela cheia indisponivel neste navegador.';msgTime=2;}});document.addEventListener('fullscreenchange',()=>{if(fullscreenBtn)fullscreenBtn.textContent=document.fullscreenElement?'⛶ SAIR DA TELA CHEIA':'⛶ TELA CHEIA';});
 const down=(...codes)=>codes.some(c=>keys.has(c)), hit=(...codes)=>codes.some(c=>pressed.has(c));
 let level=1, victory=false, started=false, paused=false, time=0, weapon=0, shieldLevel=0, shieldHits=0, msg='Atravesse as ruinas e recupere as runas.',msgTime=4, totalRunes=0, score=0, checkpoint=false, checkpointX=145, checkpointY=470,cameraX=0,shake=0,flash=0,bossWarning=0;
 const hero={x:145,y:470,vx:0,vy:0,face:1,armor:0,hp:3,inv:0,attack:0,attackCd:0,bowCd:0,charge:0,specialFx:0,dashCd:0,dashFx:0,jumps:0,jumpFx:0};
