@@ -21,12 +21,13 @@
     .touch .group { display:flex; gap:8px; flex-wrap:wrap; }
     .touch button { width:clamp(54px,14vw,76px); min-height:54px; border:1px solid #53627d; border-radius:12px; background:linear-gradient(#253653,#182238); color:#fff; font-weight:800; font-size:clamp(11px,2.8vw,14px); touch-action:none; box-shadow:0 4px 0 #0c1322, inset 0 1px rgba(255,255,255,.12); }
     .touch button:active { background:#35628b; transform:translateY(1px); }
+    @media (max-width:799px) { .touch { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:repeat(2,54px); gap:7px; } .touch .group { display:contents; } .touch button { width:100%; min-width:0; } .touch > .group:first-child > button:nth-child(1) { grid-column:1; grid-row:1; } .touch > .group:first-child > button:nth-child(2) { grid-column:4; grid-row:1; } .touch > .group:last-child > button:nth-child(1) { grid-column:2; grid-row:2; } .touch > .group:last-child > button:nth-child(2) { grid-column:4; grid-row:2; } .touch > .group:last-child > button:nth-child(3) { grid-column:3; grid-row:2; } .touch > .group:last-child > button:nth-child(4) { grid-column:1; grid-row:2; } .touch > .group:last-child > button:nth-child(5) { grid-column:2; grid-row:1; } }
     .utility { display:flex; justify-content:center; gap:8px; margin-top:10px; }
     .utility button { border:1px solid #53627d; border-radius:8px; background:#182238; color:#d7e1ec; padding:8px 14px; font-weight:700; }
     main:fullscreen { width:100vw; height:100vh; padding:10px; background:#080d19; }
     main:fullscreen .wrap { max-height:calc(100vh - 120px); margin:auto; }
     @media (min-width:800px) { .touch { display:none; } .utility { display:none; } }
-    @media (max-width:460px) { main { padding:8px; } h1 { text-align:center; } .touch { gap:6px; } .touch .group { gap:5px; } .touch button { width:calc((100vw - 54px)/5); min-height:52px; padding:4px 2px; } .help { font-size:11px; } }
+    @media (max-width:460px) { main { padding:8px; } h1 { text-align:center; } .touch { gap:6px; grid-template-rows:repeat(2,52px); } .touch button { min-height:52px; padding:4px 2px; } .help { font-size:11px; } }
     kbd { padding:2px 6px; border:1px solid #53627d; border-radius:4px; background:#182238; color:#fff; }
   </style>
 </head>
