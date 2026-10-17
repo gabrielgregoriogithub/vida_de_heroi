@@ -13,6 +13,11 @@
     .wrap { position:relative; width:100%; aspect-ratio:16/9; border:2px solid #384763; box-shadow:0 0 40px #050912; background:#10182c; }
     canvas { display:block; width:100%; height:100%; image-rendering:auto; }
     .help { margin-top:8px; color:#9aaac2; font-size:13px; text-align:center; }
+    .touch { display:flex; justify-content:space-between; gap:8px; margin-top:10px; user-select:none; touch-action:none; }
+    .touch .group { display:flex; gap:8px; }
+    .touch button { min-width:52px; min-height:42px; border:1px solid #53627d; border-radius:8px; background:#182238; color:#fff; font-weight:700; touch-action:none; }
+    .touch button:active { background:#35628b; transform:translateY(1px); }
+    @media (min-width:800px) { .touch { display:none; } }
     kbd { padding:2px 6px; border:1px solid #53627d; border-radius:4px; background:#182238; color:#fff; }
   </style>
 </head>
@@ -20,6 +25,7 @@
 <main>
   <h1>Vida de Heroi</h1>
   <div class="wrap"><canvas id="game" width="1152" height="648"></canvas></div>
+  <div class="touch"><div class="group"><button data-key="ArrowLeft">◀</button><button data-key="ArrowRight">▶</button></div><div class="group"><button data-key="KeyQ">Q</button><button data-key="KeyJ">ATK</button><button data-key="KeyK">ARCO</button><button data-key="KeyL">ESCUDO</button><button data-key="Space">PULO</button></div></div>
   <div class="help"><kbd>A</kbd><kbd>D</kbd> mover &nbsp; <kbd>Espaco</kbd> pular &nbsp; <kbd>J</kbd> atacar &nbsp; <kbd>K</kbd> disparar &nbsp; <kbd>L</kbd> escudo &nbsp; <kbd>Q</kbd> trocar arma</div>
 </main>
 <script>
@@ -27,8 +33,9 @@ const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),W=1152,
 const keys=new Set(); let pressed=new Set();
 addEventListener('keydown',e=>{ if(!keys.has(e.code)) pressed.add(e.code); keys.add(e.code); if(['Space','ArrowUp','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault(); });
 addEventListener('keyup',e=>keys.delete(e.code));
+document.querySelectorAll('[data-key]').forEach(button=>{const code=button.dataset.key;button.addEventListener('pointerdown',e=>{e.preventDefault();keys.add(code);pressed.add(code);});['pointerup','pointercancel','pointerleave'].forEach(type=>button.addEventListener(type,e=>{e.preventDefault();keys.delete(code);}));});
 const down=(...codes)=>codes.some(c=>keys.has(c)), hit=(...codes)=>codes.some(c=>pressed.has(c));
-let level=1, victory=false, started=false, time=0, weapon=0, msg='Recupere as runas e atravesse o portao.',msgTime=4, totalRunes=0;
+let level=1, victory=false, started=false, paused=false, time=0, weapon=0, msg='Recupere as runas e atravesse o portao.',msgTime=4, totalRunes=0;
 const hero={x:145,y:470,vx:0,vy:0,face:1,armor:0,hp:3,inv:0,attack:0,attackCd:0,bowCd:0,jumps:0,jumpFx:0};
 let platforms=[],enemies=[],runes=[],arrows=[];
 function loadLevel(n){ level=n; victory=false; time=0; arrows=[]; hero.x=n===2?55:145;hero.y=470;hero.vx=hero.vy=0;hero.inv=1;
@@ -40,7 +47,7 @@ function loadLevel(n){ level=n; victory=false; time=0; arrows=[]; hero.x=n===2?5
 loadLevel(1);
 function floor(){return platforms.some(p=>hero.x>p[0]-18&&hero.x<p[0]+p[2]+18&&Math.abs(hero.y+35-p[1])<5)}
 function damage(){if(hero.inv>0)return; hero.inv=1.15;if(hero.armor>0){hero.armor--;msg='A armadura foi quebrada!';}else{hero.hp--;msg='Voce foi atingido!';}msgTime=1.2;if(hero.hp<=0){hero.hp=3;hero.armor=0;hero.x=level===2?55:145;hero.y=470;msg='A jornada recomeca...';}}
-function update(dt){time+=dt;if(victory){if(hit('Space')){hero.hp=3;hero.armor=0;totalRunes=0;loadLevel(1);}return;}
+function update(dt){time+=dt;if(hit('Escape'))paused=!paused;if(victory){if(hit('Space')){hero.hp=3;hero.armor=0;totalRunes=0;loadLevel(1);}return;}if(paused)return;
   if(!started){if(hit('Space','Enter')){started=true;msg='A aventura comeca!';msgTime=2;}return;}
   const axis=(down('ArrowRight','KeyD')?1:0)-(down('ArrowLeft','KeyA')?1:0),blocking=down('KeyL')&&weapon===2;
   if(axis){hero.face=axis;hero.vx+=(axis*285-hero.vx)*Math.min(1,16*dt);}else hero.vx*=Math.max(0,1-12*dt);
@@ -65,7 +72,7 @@ function draw(){const sky=level===1?'#10182c':'#21152d';ctx.fillStyle=sky;ctx.fi
   enemies.forEach(e=>{if(!e[4])return;const boss=e[5]>2;ctx.fillStyle=boss?'#8f4fb4':'#a83f4d';ctx.beginPath();ctx.arc(e[0],e[1]-11,boss?22:14,0,7);ctx.fill();ctx.fillStyle=boss?'#4d2867':'#6b293b';ctx.fillRect(e[0]-(boss?20:13),e[1]+2,boss?40:26,boss?38:25);ctx.fillStyle='#fff';ctx.fillRect(e[0]-8,e[1]-16,5,5);ctx.fillRect(e[0]+3,e[1]-16,5,5);if(boss){ctx.fillStyle='#31162f';ctx.fillRect(e[0]-32,e[1]-48,64,7);ctx.fillStyle='#e66c83';ctx.fillRect(e[0]-32,e[1]-48,64*(e[5]/8),7);}});
   arrows.forEach(a=>{ctx.strokeStyle='#e8c777';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.x-a.vx/Math.abs(a.vx)*18,a.y);ctx.stroke();});
   if(!runes.length){ctx.fillStyle='#b67a45';ctx.fillRect(W-55,FLOOR-84,28,84);ctx.fillStyle='#7de6ff';ctx.beginPath();ctx.arc(W-41,FLOOR-52,7,0,7);ctx.fill();}
-  drawHero();drawUI();if(!started){ctx.fillStyle='rgba(3,5,10,.94)';ctx.fillRect(210,155,732,285);text('VIDA DE HEROI',576,230,48,'#f4d37d','center');text('Uma jornada de espada, arco e escudo.',576,275,20,'#d7e1ec','center');text('Recupere as runas, evolua sua armadura e enfrente o Guardiao.',576,310,17,'#d7e1ec','center');text('ESPACO: comecar',576,370,23,'#7de6ff','center');}if(victory){ctx.fillStyle='rgba(3,5,10,.94)';ctx.fillRect(210,175,732,245);text('A LENDA VIVE',576,250,46,'#f4d37d','center');text('Voce recuperou a armadura e venceu as ruinas.',576,300,20,'#d7e1ec','center');text('ESPACO: recomecar',576,355,21,'#7de6ff','center');}}
+  drawHero();drawUI();if(!started){ctx.fillStyle='rgba(3,5,10,.94)';ctx.fillRect(210,155,732,285);text('VIDA DE HEROI',576,230,48,'#f4d37d','center');text('Uma jornada de espada, arco e escudo.',576,275,20,'#d7e1ec','center');text('Recupere as runas, evolua sua armadura e enfrente o Guardiao.',576,310,17,'#d7e1ec','center');text('ESPACO: comecar',576,370,23,'#7de6ff','center');}if(paused){ctx.fillStyle='rgba(3,5,10,.82)';ctx.fillRect(330,220,492,170);text('PAUSADO',576,285,42,'#f4d37d','center');text('Pressione ESC para continuar',576,330,20,'#d7e1ec','center');}if(victory){ctx.fillStyle='rgba(3,5,10,.94)';ctx.fillRect(210,175,732,245);text('A LENDA VIVE',576,250,46,'#f4d37d','center');text('Voce recuperou a armadura e venceu as ruinas.',576,300,20,'#d7e1ec','center');text('ESPACO: recomecar',576,355,21,'#7de6ff','center');}}
 function drawHero(){if(hero.inv>0&&Math.floor(hero.inv*12)%2===0)return;const p=hero,colors=['#9b5b48','#d0d8df','#f0c45d'],c=colors[p.armor];if(hero.jumpFx>0){ctx.strokeStyle=`rgba(125,230,255,${hero.jumpFx*3})`;ctx.lineWidth=3;ctx.beginPath();ctx.arc(p.x,p.y+35,26+(1-hero.jumpFx)*20,0,7);ctx.stroke();}ctx.fillStyle='#d89568';ctx.beginPath();ctx.arc(p.x,p.y-43,15,0,7);ctx.fill();ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(p.x-18,p.y-28);ctx.lineTo(p.x+18,p.y-28);ctx.lineTo(p.x+14,p.y+12);ctx.lineTo(p.x-14,p.y+12);ctx.fill();ctx.fillStyle='#343d5a';ctx.fillRect(p.x-16,p.y+10,12,25);ctx.fillRect(p.x+4,p.y+10,12,25);if(p.armor>0){ctx.strokeStyle=c;ctx.lineWidth=5;ctx.beginPath();ctx.arc(p.x,p.y-43,18,Math.PI,0);ctx.stroke();}
   if(weapon===2){ctx.fillStyle='#4b8cb7';ctx.beginPath();ctx.arc(p.x+p.face*24,p.y-20,18,0,7);ctx.fill();ctx.fillStyle='#8fd2de';ctx.beginPath();ctx.arc(p.x+p.face*24,p.y-20,13,0,7);ctx.fill();}else if(weapon===1){ctx.strokeStyle='#c99a58';ctx.lineWidth=4;ctx.beginPath();ctx.arc(p.x+p.face*17,p.y-26,18,-Math.PI/2,Math.PI/2);ctx.stroke();}else{ctx.strokeStyle='#e9edf5';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(p.x+p.face*12,p.y-20);ctx.lineTo(p.x+p.face*(p.attack>0?52:36),p.y-32);ctx.stroke();}}
 function drawUI(){ctx.fillStyle='rgba(3,5,10,.9)';ctx.fillRect(20,18,1112,76);text('VIDA DE HEROI',38,46,24,'#f4d37d');text(`F${level}  ${level===1?'As Ruinas do Crepusculo':'O Santuario do Rei Caido'}`,270,43,16);text(`HP ${hero.hp}   ARMADURA ${hero.armor+1}/3   |   ${['ESPADA','ARCO','ESCUDO'][weapon]}`,38,74,17,'#ff8b82');text('A/D mover  ESPACO pulo duplo  J atacar  K disparar  L escudo  Q trocar',650,74,13);if(msgTime&&!victory)text(msg,576,615,19,'#fff','center');const objective=runes.length?`RUNAS: ${runes.length} RESTANTES`:level===2&&enemies.some(e=>e[4])?'DERROTE O GUARDIAO':'PORTAO ABERTO - SIGA EM FRENTE';text(objective,576,120,18,runes.length||level===2&&enemies.some(e=>e[4])?'#7de6ff':'#9eea86','center');}
