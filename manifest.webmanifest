@@ -1,0 +1,17 @@
+{
+  "name": "Vida de Heroi",
+  "short_name": "Vida de Heroi",
+  "description": "Uma aventura contínua de plataforma, combate e exploração.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#080d19",
+  "theme_color": "#080d19",
+  "icons": [
+    {
+      "src": "assets/vida-de-heroi-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
