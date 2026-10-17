@@ -1,6 +1,10 @@
 # Vida de Herói
 
-Protótipo local de plataforma 2D em Godot 4.
+Protótipo de plataforma 2D que roda diretamente no navegador pelo `index.html` e também possui uma versão de protótipo em Godot 4.
+
+## Publicar no GitHub Pages
+
+No GitHub, abra **Settings > Pages**, escolha a branch `main` e a pasta `/ (root)`. O arquivo `index.html` será publicado automaticamente.
 
 ## Conceito
 
@@ -15,4 +19,4 @@ Um herói atravessa ruínas, alternando entre espada, arco e escudo. Runas espal
 - `L`: bloquear com o escudo
 - `Q`: trocar entre espada, arco e escudo
 
-Abra o projeto com Godot 4 e execute `main.tscn`.
+Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.
