@@ -1,6 +1,6 @@
 // Picos da Tempestade: setima regiao, liberada apos derrotar o Colosso da Forja.
 // Ilhas sobre abismos, correntes de ar, rajadas e o Dragao da Tempestade.
-const STORM_START = FORGE_END, STORM_ARENA = 18700, DRAGON_HOME = 19300, DRAGON_HP = 80;
+const STORM_START = FORGE_END, STORM_END = 19900, STORM_ARENA = 18700, DRAGON_HOME = 19300, DRAGON_HP = 80;
 const STORM_TYPES = { harpy: 21, sentinel: 22, stormcloud: 23, dragon: 24 };
 const BOLT_SPEED = 1300, ROD_CHARGE = 8, ARENA_ROD_CHARGE = 5;
 
@@ -27,7 +27,7 @@ function stormReset() {
   if (ground) ground[2] = STORM_START - SEA_END;
   let x = STORM_START;
   storm.chasms.forEach(([cx, w]) => { platforms.push([x, FLOOR, cx - x, 108, 'stormground']); x = cx + w; });
-  platforms.push([x, FLOOR, WORLD_W - x, 108, 'stormground']);
+  platforms.push([x, FLOOR, STORM_END - x, 108, 'stormground']);
   storm.bridge = Object.assign([17900, 470, 400, 16, 'bridge'], { baseY: 470 });
   storm.bridge[1] = FLOOR + 500;
   platforms.push(
@@ -67,7 +67,7 @@ function inDraft(x) { return storm.drafts.find(d => Math.abs(x - d.x) < d.w / 2)
 
 // O chao deixa de segurar o heroi sobre os abismos (ou depois que ele ja caiu abaixo da borda).
 const baseOverAbyss = overAbyss;
-overAbyss = function (x) { return baseOverAbyss(x) || inChasm(x) || (!!storm && x > STORM_START && hero.y + 35 > FLOOR + 25); };
+overAbyss = function (x) { return baseOverAbyss(x) || inChasm(x) || (!!storm && x > STORM_START && x < STORM_END && hero.y + 35 > FLOOR + 25); };
 
 // Mira automatica do Raio: procura o inimigo mais proximo a frente.
 function boltAim() {
@@ -88,7 +88,7 @@ function chainBolt(a, e) {
   let from = e;
   const hitList = [e];
   for (let i = 0; i < 2; i++) {
-    const next = enemies.find(o => o[4] && !hitList.includes(o) && !a.hitIds.includes(o) && o.frost !== 'dragon' && Math.hypot(o[0] - from[0], o[1] - from[1]) < 230);
+    const next = enemies.find(o => o[4] && !hitList.includes(o) && !a.hitIds.includes(o) && o.frost !== 'dragon' && o.frost !== 'leviathan' && Math.hypot(o[0] - from[0], o[1] - from[1]) < 230);
     if (!next) break;
     storm.arcs.push({ x1: from[0], y1: from[1] - 10, x2: next[0], y2: next[1] - 10, t: .25 });
     next[5] -= 1; if (next[5] <= 0) next[4] = 0;
@@ -129,7 +129,7 @@ function updateStormHero(dt) {
   const g = storm.gust;
   if (g.t > 0 && hero.x > STORM_START + 200 && !storm.feather) hero.x += g.dir * (blocking ? 40 : 150) * dt;
   if (storm.arenaLocked && hero.x < STORM_ARENA + 20) { hero.x = STORM_ARENA + 20; hero.vx = Math.max(0, hero.vx); }
-  if (hero.y > FLOOR + 120 && hero.x > STORM_START && !draft) {
+  if (hero.y > FLOOR + 120 && hero.x > STORM_START && hero.x < STORM_END && !draft) {
     const before = hero.hp + hero.armor;
     damage();
     if (hero.hp + hero.armor < before || hero.inv > 0) { hero.x = checkpointX; hero.y = checkpointY; hero.vx = hero.vy = 0; }
@@ -138,7 +138,7 @@ function updateStormHero(dt) {
 }
 
 function updateGust(dt) {
-  const g = storm.gust, active = hero.x > STORM_START + 200 && (hero.x < STORM_ARENA || storm.phase === 2);
+  const g = storm.gust, active = hero.x > STORM_START + 200 && (hero.x < STORM_ARENA || (storm.phase === 2 && !storm.bossDefeated));
   if (!active) { g.t = 0; g.warn = 0; return; }
   if (g.t > 0) { g.t -= dt; if (g.t <= 0) g.cd = 7 + Math.random() * 4; return; }
   if (g.warn > 0) { g.warn -= dt; if (g.warn <= 0) { g.t = 2.4; stormSfx('gust'); } return; }
@@ -243,7 +243,7 @@ function updateDragon(e, dt) {
     }
     return;
   }
-  const tx = Math.max(STORM_ARENA + 120, Math.min(WORLD_W - 140, hero.x + Math.sin(e.t * .7) * 260)), ty = 210 + Math.sin(e.t * 1.6) * 35;
+  const tx = Math.max(STORM_ARENA + 120, Math.min(STORM_END - 140, hero.x + Math.sin(e.t * .7) * 260)), ty = 210 + Math.sin(e.t * 1.6) * 35;
   e[0] += (tx - e[0]) * Math.min(1, 1.4 * dt); e[1] += (ty - e[1]) * Math.min(1, 2 * dt);
   e[2] = hero.x < e[0] ? -1 : 1;
   if (e.windup > 0) {
@@ -254,7 +254,7 @@ function updateDragon(e, dt) {
       for (let i = 0; i < n; i++) { const ang = base + (i - (n - 1) / 2) * .18; enemyShots.push({ x: e[0] + e[2] * 40, y: e[1], vx: Math.cos(ang) * 340, vy: Math.sin(ang) * 340, life: 3.5, kind: 'spark', frost: 1, storm: 1 }); }
       stormSfx('zap');
     } else if (e.next === 'dive') { e.mode = 'dive'; e.tx = hero.x; e.ty = FLOOR - 60; stormSfx('roar'); }
-    else { const xs = rage ? [-220, -110, 0, 110, 220] : [-160, 0, 160]; xs.forEach((o, i) => addStrike(Math.max(STORM_ARENA + 40, Math.min(WORLD_W - 40, hero.x + o)), 1 + i * .08)); }
+    else { const xs = rage ? [-220, -110, 0, 110, 220] : [-160, 0, 160]; xs.forEach((o, i) => addStrike(Math.max(STORM_ARENA + 40, Math.min(STORM_END - 40, hero.x + o)), 1 + i * .08)); }
     return;
   }
   e.cd -= dt;
@@ -344,7 +344,7 @@ function stormUpdate(dt) {
 
 function drawStormBackdrop() {
   if (cameraX + W < STORM_START) return;
-  const left = STORM_START, right = WORLD_W, view = cameraX;
+  const left = STORM_START, right = STORM_END, view = cameraX;
   ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); ctx.clip();
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, '#0b0e1f'); sky.addColorStop(.55, '#26304f'); sky.addColorStop(1, '#3b4466');
@@ -559,23 +559,23 @@ function drawBoltPickup(item) {
 
 function drawStormAtmosphere() {
   if (cameraX + W < STORM_START) return;
-  const startSx = Math.max(0, STORM_START - cameraX), g = storm.gust, gusting = g.t > 0 ? 1 : g.warn > 0 ? .4 : 0;
+  const startSx = Math.max(0, STORM_START - cameraX), endSx = Math.min(W, STORM_END - cameraX), g = storm.gust, gusting = g.t > 0 ? 1 : g.warn > 0 ? .4 : 0;
   const slant = gusting ? g.dir * 40 : -12;
   ctx.strokeStyle = 'rgba(180,200,240,.35)'; ctx.lineWidth = 1.2;
   for (let i = 0; i < 90 + gusting * 60; i++) {
     const sx = ((i * 97.3 + time * slant * 6) % W + W) % W, sy = (i * 61 + time * 620) % H;
-    if (sx < startSx) continue;
+    if (sx < startSx || sx > endSx) continue;
     ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + slant * .5, sy + 18); ctx.stroke();
   }
   if (gusting) {
     ctx.strokeStyle = `rgba(230,240,255,${.3 * gusting})`; ctx.lineWidth = 2;
-    for (let i = 0; i < 14; i++) { const sx = ((i * 233 + time * g.dir * 1000) % W + W) % W, sy = 120 + (i * 37) % 420; if (sx < startSx) continue; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(sx - g.dir * 40, sy - 12, sx - g.dir * 90, sy); ctx.stroke(); }
+    for (let i = 0; i < 14; i++) { const sx = ((i * 233 + time * g.dir * 1000) % W + W) % W, sy = 120 + (i * 37) % 420; if (sx < startSx || sx > endSx) continue; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(sx - g.dir * 40, sy - 12, sx - g.dir * 90, sy); ctx.stroke(); }
   }
-  if (storm.flashT > 0) { ctx.fillStyle = `rgba(230,240,255,${storm.flashT * 2})`; ctx.fillRect(startSx, 0, W - startSx, H); }
+  if (storm.flashT > 0) { ctx.fillStyle = `rgba(230,240,255,${storm.flashT * 2})`; ctx.fillRect(startSx, 0, endSx - startSx, H); }
 }
 
 function drawStormUI() {
-  if (!started || victory || hero.x <= FORGE_END) return;
+  if (!started || victory || hero.x <= FORGE_END || hero.x > STORM_END) return;
   const chips = [
     [storm.bolt ? 'RAIO ✓' : 'RAIO —', storm.bolt ? '#fff27a' : '#5d6b80'],
     [storm.feather ? 'PENA DO VENDAVAL ✓' : 'PENA ?', storm.feather ? '#d9f3ff' : '#5d6b80']

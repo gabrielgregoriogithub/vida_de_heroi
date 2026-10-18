@@ -17,7 +17,7 @@ Um herói atravessa ruínas, alternando entre espada, arco e escudo. Runas espal
 - `J`: atacar com a arma equipada
 - `K`: disparar quando o arco estiver equipado
 - `L`: bloquear com o escudo
-- `Q`: trocar entre as armas coletadas (espada, arco, lança, chakram, tocha, lâmina glacial, martelo, raio)
+- `Q`: trocar entre as armas coletadas (espada, arco, lança, chakram, tocha, lâmina glacial, martelo, raio, tridente)
 
 Derrote inimigos em sequência para ativar combos e aumentar a pontuação. O melhor resultado fica salvo localmente no navegador.
 
@@ -51,7 +51,7 @@ Depois da queda da Rainha do Inverno, o portão leste se abre para a Forja Vulc�
 - **Segredo:** com as Asas da Aurora, alcance a plataforma alta antes da arena para obter o Elmo de Obsidiana (a lava deixa de causar dano).
 - **Chefe — Colosso da Forja:** armadura de magma reduz o dano (exceto do martelo). Após cada martelada o núcleo fica exposto: dano dobrado, triplo com a Lâmina Glacial. Na fase 2 a lava sobe periodicamente na arena: suba nas plataformas.
 
-## Picos da Tempestade (nova região)
+## Picos da Tempestade
 
 Depois da queda do Colosso, a trilha sobe para os Picos da Tempestade.
 
@@ -68,3 +68,15 @@ Depois da queda do Colosso, a trilha sobe para os Picos da Tempestade.
 No celular, os botões `⇄ ARMA`, `✧ ASTRAL` e `✦ VAZIO` ficam na barra inferior.
 
 Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.
+
+## Ruínas Submersas (nova região)
+
+Depois da queda do Dragão, a trilha desce até a Praia dos Náufragos e mergulha num templo afundado.
+
+- **Natação**: debaixo d'água cada pulo é uma braçada; o herói afunda devagar e anda mais lento.
+- **Ar**: o medidor esvazia debaixo d'água; sem ar o herói perde vida. Fontes de bolhas renovam o fôlego e viram checkpoint.
+- **Correnteza**: um trecho empurra o herói para trás (segurar `L` com escudo ajuda).
+- **Tridente**: nova arma que atravessa inimigos; especial *Maremoto*. A tocha se apaga na água.
+- **Inimigos**: piranhas em cardume, águas-vivas com pulso elétrico e caranguejos com carapaça frontal (Tridente e Martelo passam).
+- **Segredo**: uma concha gigante só abre com o Martelo e guarda a **Pérola do Abismo** (ar infinito e +1 vida máxima).
+- **Chefe — Leviatã das Ruínas**: tentáculos (corte todos para atordoá-lo), jatos de tinta que escurecem a visão e um redemoinho que puxa o herói — com a boca aberta ele toma dano dobrado. Na fase 2 ganha escamas (só o Tridente fere de verdade) e chama um cardume.
