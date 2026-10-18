@@ -17,7 +17,7 @@ Um herói atravessa ruínas, alternando entre espada, arco e escudo. Runas espal
 - `J`: atacar com a arma equipada
 - `K`: disparar quando o arco estiver equipado
 - `L`: bloquear com o escudo
-- `Q`: trocar entre as armas coletadas (espada, arco, lança, chakram, tocha, lâmina glacial, martelo)
+- `Q`: trocar entre as armas coletadas (espada, arco, lança, chakram, tocha, lâmina glacial, martelo, raio)
 
 Derrote inimigos em sequência para ativar combos e aumentar a pontuação. O melhor resultado fica salvo localmente no navegador.
 
@@ -40,7 +40,7 @@ Depois de derrotar o Senhor das Caveiras, o Portão Gélido se abre para a quint
 - **Segredo:** com as Asas da Aurora, alcance a plataforma alta além da muralha para obter o Amuleto Boreal (+1 de dano em todos os ataques).
 - **Neve por altitude:** quanto mais alto o herói pisa na Cidadela, mais forte a nevasca; no chão ela volta ao nível normal.
 
-## Forja Vulcânica (nova região)
+## Forja Vulcânica
 
 Depois da queda da Rainha do Inverno, o portão leste se abre para a Forja Vulcânica.
 
@@ -50,6 +50,20 @@ Depois da queda da Rainha do Inverno, o portão leste se abre para a Forja Vulc�
 - **Bigornas ancestrais:** acendem sozinhas e viram checkpoints.
 - **Segredo:** com as Asas da Aurora, alcance a plataforma alta antes da arena para obter o Elmo de Obsidiana (a lava deixa de causar dano).
 - **Chefe — Colosso da Forja:** armadura de magma reduz o dano (exceto do martelo). Após cada martelada o núcleo fica exposto: dano dobrado, triplo com a Lâmina Glacial. Na fase 2 a lava sobe periodicamente na arena: suba nas plataformas.
+
+## Picos da Tempestade (nova região)
+
+Depois da queda do Colosso, a trilha sobe para os Picos da Tempestade.
+
+- **Abismos de verdade:** o chão tem fendas; cair custa 1 de vida e devolve o herói ao último checkpoint.
+- **Correntes de ar:** colunas de vento erguem o herói e o mantêm pairando no topo; uma delas é a única forma de cruzar o segundo abismo.
+- **Rajadas de vento:** empurram o herói em direção aos abismos (segure `L` com escudo para resistir).
+- **Raio** (nova arma): mira automaticamente no inimigo mais próximo à frente e se ramifica para até dois inimigos vizinhos. Especial: Tempestade Ramificada.
+- **Para-raios:** acerte-os com o Raio. O primeiro acende por alguns segundos uma ponte de energia sobre o abismo mais largo.
+- **Inimigos:** Harpias (mergulham e soltam penas), Sentinelas Rúnicas (raio horizontal após aviso: pule ou bloqueie com escudo) e Nuvens de Tempestade (lançam relâmpagos marcados no chão; só se dispersam com o Raio ou a Ruptura Astral).
+- **Santuários do vento:** viram checkpoints ao passar.
+- **Segredo:** pairando na corrente de ar antes do segundo abismo, só o pulo extra das Asas da Aurora alcança a Pena do Vendaval (imunidade às rajadas e +1 vida máxima).
+- **Chefe — Dragão da Tempestade:** absorve o Raio. Carregue os **dois para-raios** da arena ao mesmo tempo para invocar o Raio Ancestral, que derruba o dragão e o deixa vulnerável (dano dobrado). Na fase 2 ganha um Escudo de Tempestade e só pode ser ferido depois de derrubado; as rajadas também chegam à arena.
 
 No celular, os botões `⇄ ARMA`, `✧ ASTRAL` e `✦ VAZIO` ficam na barra inferior.
 

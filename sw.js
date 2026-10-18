@@ -1,5 +1,5 @@
-const CACHE_NAME = 'vida-de-heroi-v5';
-const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './assets/vida-de-heroi-icon.png', './js/cidadela-gelida.js', './js/forja-vulcanica.js',
+const CACHE_NAME = 'vida-de-heroi-v6';
+const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './assets/vida-de-heroi-icon.png', './js/cidadela-gelida.js', './js/forja-vulcanica.js', './js/picos-tempestade.js',
   './assets/frost/frost-queen.png', './assets/frost/frost-golem.png', './assets/frost/ice-mage.png',
   './assets/frost/crystal-wisp.png', './assets/frost/aurora-wings.png', './assets/frost/glacial-blade.png'];
 

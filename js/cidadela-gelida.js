@@ -103,7 +103,7 @@ function applyFreeze(e) {
 }
 
 function heroGround() {
-  if (hero.y + 35 >= FLOOR - 1) return hero.x > FROST_START ? 'frost' : 'ground';
+  if (hero.y + 35 >= FLOOR - 1) return hero.x > FROST_START && hero.x < FROST_END ? 'frost' : 'ground';
   const p = platforms.find(q => hero.x > q[0] - 18 && hero.x < q[0] + q[2] + 18 && Math.abs(hero.y + 35 - q[1]) < 5);
   return p ? (p[4] === 'ice' || p[4] === 'aurora' ? 'ice' : 'stone') : null;
 }
@@ -144,7 +144,7 @@ function updateFrostHero(dt, pre) {
   frost.chill = Math.max(0, frost.chill - dt);
   const moved = hero.x - pre.x;
   if (frost.chill > 0 && Math.abs(moved) < 60) hero.x -= moved * .4;
-  if (frost.blizzard.t > 0) hero.x += frost.blizzard.dir * (blocking ? 40 : 135) * dt;
+  if (frost.blizzard.t > 0 && hero.x < FROST_END) hero.x += frost.blizzard.dir * (blocking ? 40 : 135) * dt;
   // Portao da cidadela so abre apos a queda do Senhor das Caveiras.
   const bigBoss = enemies.find(e => e[6] === 7 && e[4]);
   if (bigBoss && hero.x > FROST_START - 30) {

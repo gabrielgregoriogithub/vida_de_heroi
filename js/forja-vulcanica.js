@@ -1,6 +1,6 @@
 // Forja Vulcanica: sexta regiao, liberada apos derrotar a Rainha do Inverno.
 // Mesmo padrao da Cidadela: envolve loadLevel/update/hitPower e as funcoes de desenho.
-const FORGE_START = FROST_END, FORGE_ARENA = 14790, COLOSSUS_HOME = 15250, COLOSSUS_HP = 70;
+const FORGE_START = FROST_END, FORGE_END = 15700, FORGE_ARENA = 14790, COLOSSUS_HOME = 15250, COLOSSUS_HP = 70;
 const FORGE_TYPES = { salamander: 17, bomber: 18, ember: 19, colossus: 20 };
 const MAGMA_GRAVITY = 700;
 
@@ -211,7 +211,7 @@ function updateColossus(e, dt) {
     return;
   }
   if (e.exposed <= 0) { e[2] = Math.sign(dx) || e[2]; e[0] += e[2] * (rage ? 62 : 45) * dt; }
-  e[0] = Math.max(FORGE_ARENA + 60, Math.min(WORLD_W - 80, e[0]));
+  e[0] = Math.max(FORGE_ARENA + 60, Math.min(FORGE_END - 80, e[0]));
   e.cd -= dt;
   if (e.cd > 0 || e.exposed > 0) return;
   if (Math.abs(dx) < 260) { e.windup = rage ? .7 : .9; e.cd = rage ? 2.6 : 3.2; }
@@ -297,7 +297,7 @@ function forgeUpdate(dt) {
 
 function drawForgeBackdrop() {
   if (cameraX + W < FORGE_START) return;
-  const left = FORGE_START, right = WORLD_W, view = cameraX;
+  const left = FORGE_START, right = FORGE_END, view = cameraX;
   ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); ctx.clip();
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, '#16070a'); sky.addColorStop(.5, '#3d1210'); sky.addColorStop(1, '#5c1d0e');
@@ -329,7 +329,7 @@ function drawForgeBackdrop() {
   ctx.fillStyle = fade; ctx.fillRect(left, 0, 260, H);
   if (forge.arenaLocked || hero.x > FORGE_ARENA - 400) {
     ctx.fillStyle = `rgba(255,91,46,${.05 + .03 * Math.sin(time * 2)})`; ctx.fillRect(FORGE_ARENA, 0, right - FORGE_ARENA, H);
-    [FORGE_ARENA - 10, WORLD_W - 60].forEach(x => { ctx.fillStyle = '#2b1512'; ctx.fillRect(x, FLOOR - 240, 46, 240); ctx.fillStyle = '#ff7b35'; ctx.fillRect(x + 16, FLOOR - 228, 14, 20); });
+    [FORGE_ARENA - 10, FORGE_END - 60].forEach(x => { ctx.fillStyle = '#2b1512'; ctx.fillRect(x, FLOOR - 240, 46, 240); ctx.fillStyle = '#ff7b35'; ctx.fillRect(x + 16, FLOOR - 228, 14, 20); });
   }
   ctx.restore();
 }
@@ -344,20 +344,20 @@ function drawLava(x, w, top, alpha = 1) {
 }
 
 function drawForgeTerrain() {
-  if (cameraX + W < FORGE_START) return;
-  ctx.fillStyle = '#1e1212'; ctx.fillRect(FORGE_START, FLOOR, WORLD_W - FORGE_START, H - FLOOR);
-  ctx.fillStyle = '#2e1a17'; ctx.fillRect(FORGE_START, FLOOR, WORLD_W - FORGE_START, 10);
+  if (cameraX + W < FORGE_START || cameraX > FORGE_END) return;
+  ctx.fillStyle = '#1e1212'; ctx.fillRect(FORGE_START, FLOOR, FORGE_END - FORGE_START, H - FLOOR);
+  ctx.fillStyle = '#2e1a17'; ctx.fillRect(FORGE_START, FLOOR, FORGE_END - FORGE_START, 10);
   ctx.strokeStyle = `rgba(255,110,40,${.45 + .2 * Math.sin(time * 2)})`; ctx.lineWidth = 2;
-  for (let x = Math.max(FORGE_START, cameraX - 60); x < Math.min(WORLD_W, cameraX + W + 60); x += 90) {
+  for (let x = Math.max(FORGE_START, cameraX - 60); x < Math.min(FORGE_END, cameraX + W + 60); x += 90) {
     const bx = x - x % 90; ctx.beginPath(); ctx.moveTo(bx + 10, FLOOR + 14); ctx.lineTo(bx + 34, FLOOR + 40); ctx.lineTo(bx + 28, FLOOR + 70); ctx.moveTo(bx + 34, FLOOR + 40); ctx.lineTo(bx + 62, FLOOR + 52); ctx.stroke();
   }
   forge.pools.forEach(([x, w]) => drawLava(x, w, FLOOR - 6));
   const tide = forge.tide;
   if (tide.warn > 0) {
     ctx.strokeStyle = `rgba(255,170,70,${.5 + .5 * Math.sin(time * 20)})`; ctx.lineWidth = 3;
-    for (let x = FORGE_ARENA + 20; x < WORLD_W; x += 70) { ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x + 20, FLOOR - 8); ctx.lineTo(x + 40, FLOOR); ctx.stroke(); }
+    for (let x = FORGE_ARENA + 20; x < FORGE_END; x += 70) { ctx.beginPath(); ctx.moveTo(x, FLOOR); ctx.lineTo(x + 20, FLOOR - 8); ctx.lineTo(x + 40, FLOOR); ctx.stroke(); }
   }
-  if (tide.t > 0) drawLava(FORGE_ARENA, WORLD_W - FORGE_ARENA, FLOOR - 26, Math.min(1, tide.t * 2));
+  if (tide.t > 0) drawLava(FORGE_ARENA, FORGE_END - FORGE_ARENA, FLOOR - 26, Math.min(1, tide.t * 2));
   forge.puddles.forEach(p => { ctx.fillStyle = `rgba(255,110,40,${Math.min(1, p.t)})`; ctx.beginPath(); ctx.ellipse(p.x, FLOOR - 3, 30, 7, 0, 0, 7); ctx.fill(); ctx.fillStyle = `rgba(255,220,140,${Math.min(1, p.t) * .7})`; ctx.beginPath(); ctx.ellipse(p.x, FLOOR - 4, 14, 3, 0, 0, 7); ctx.fill(); });
   platforms.forEach(p => {
     if (p[4] !== 'basalt' && p[4] !== 'obsidian') return;
@@ -484,21 +484,21 @@ function drawHammerPickup(item) {
 }
 
 function drawForgeAtmosphere() {
-  if (cameraX + W < FORGE_START) return;
-  const startSx = Math.max(0, FORGE_START - cameraX);
+  if (cameraX + W < FORGE_START || cameraX > FORGE_END) return;
+  const startSx = Math.max(0, FORGE_START - cameraX), endSx = Math.min(W, FORGE_END - cameraX);
   for (let i = 0; i < 60; i++) {
     const sx = ((i * 157.3 + Math.sin(time * .8 + i) * 40) % W + W) % W, sy = H - ((i * 83 + time * (40 + (i % 4) * 18)) % H);
-    if (sx < startSx) continue;
+    if (sx < startSx || sx > endSx) continue;
     ctx.fillStyle = i % 3 ? `rgba(255,${120 + (i % 5) * 20},60,${.5 + .3 * Math.sin(time * 5 + i)})` : 'rgba(90,80,80,.5)';
     ctx.fillRect(sx, sy, 2 + (i % 2), 2 + (i % 2));
   }
   const heat = ctx.createLinearGradient(0, H, 0, H * .45);
   heat.addColorStop(0, `rgba(255,90,30,${.16 + .05 * Math.sin(time * 2)})`); heat.addColorStop(1, 'rgba(255,90,30,0)');
-  ctx.fillStyle = heat; ctx.fillRect(startSx, H * .45, W - startSx, H * .55);
+  ctx.fillStyle = heat; ctx.fillRect(startSx, H * .45, endSx - startSx, H * .55);
 }
 
 function drawForgeUI() {
-  if (!started || victory || hero.x < FORGE_START - 200) return;
+  if (!started || victory || hero.x < FORGE_START - 200 || hero.x > FORGE_END) return;
   const chips = [
     [forge.hammer ? 'MARTELO ✓' : 'MARTELO —', forge.hammer ? '#ff9b3d' : '#5d6b80'],
     [forge.helm ? 'ELMO DE OBSIDIANA ✓' : 'ELMO ?', forge.helm ? '#ffbd62' : '#5d6b80']
