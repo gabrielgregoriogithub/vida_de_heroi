@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vida-de-heroi-v2';
+const CACHE_NAME = 'vida-de-heroi-v3';
 const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './assets/vida-de-heroi-icon.png'];
 
 self.addEventListener('install', event => {
