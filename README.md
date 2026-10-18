@@ -23,4 +23,6 @@ Derrote inimigos em sequência para ativar combos e aumentar a pontuação. O me
 
 Explore os caminhos e encontre as cinco Memórias do Reino: elas aumentam sua vida máxima e carregam a Ressonância do Vazio (`K`), uma habilidade capaz de limpar projéteis e proteger o herói por alguns segundos.
 
+Ao atravessar o Mar das Cinzas, prepare-se para o encontro opcional com o Guardião da Maré, uma arena especial com recompensa lendária.
+
 Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.
