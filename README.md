@@ -19,4 +19,6 @@ Um herói atravessa ruínas, alternando entre espada, arco e escudo. Runas espal
 - `L`: bloquear com o escudo
 - `Q`: trocar entre espada, arco e escudo
 
+Derrote inimigos em sequência para ativar combos e aumentar a pontuação. O melhor resultado fica salvo localmente no navegador.
+
 Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.

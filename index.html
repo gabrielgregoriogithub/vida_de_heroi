@@ -55,7 +55,7 @@ const fullscreenBtn=document.getElementById('fullscreenBtn');fullscreenBtn?.addE
 const soundBtn=document.getElementById('soundBtn');soundBtn?.addEventListener('click',()=>{soundEnabled=!soundEnabled;if(soundEnabled)unlockAudio();if(soundBtn)soundBtn.textContent=soundEnabled?'🔊 SOM':'🔇 MUDO';});
 canvas.addEventListener('pointerdown',()=>{if(!started){started=true;unlockAudio();msg='A aventura comeca!';msgTime=2;}});
 const down=(...codes)=>codes.some(c=>keys.has(c)), hit=(...codes)=>codes.some(c=>pressed.has(c));
-let level=1, victory=false, started=false, paused=false, time=0, weapon=0, shieldLevel=0, shieldHits=0, msg='Atravesse as ruinas e recupere as runas.',msgTime=4, totalRunes=0, score=0, checkpoint=false, checkpointX=145, checkpointY=470,cameraX=0,shake=0,flash=0,bossWarning=0;
+let level=1, victory=false, started=false, paused=false, time=0, weapon=0, shieldLevel=0, shieldHits=0, msg='Atravesse as ruinas e recupere as runas.',msgTime=4, totalRunes=0, score=0, combo=0, comboTimer=0, bestScore=Number(localStorage.getItem('vidaDeHeroiBest')||0), checkpoint=false, checkpointX=145, checkpointY=470,cameraX=0,shake=0,flash=0,bossWarning=0;
 const hero={x:145,y:470,vx:0,vy:0,face:1,armor:0,hp:3,maxHp:3,inv:0,attack:0,attackCd:0,bowCd:0,charge:0,specialFx:0,dashCd:0,dashFx:0,jumps:0,jumpFx:0,jumpStyle:0};
 let platforms=[],enemies=[],runes=[],arrows=[],enemyShots=[],weapons=[],shieldPickups=[],particles=[],hazards=[],heartCells=[],heartDrops=[];
 function burst(x,y,color,count=10,power=90){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=power*(.35+Math.random()*.8);particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-30,life:.35+Math.random()*.45,max:.8,size:2+Math.random()*4,color});}}
@@ -70,6 +70,9 @@ function loadLevel(){level=1;victory=false;time=0;arrows=[];enemyShots=[];partic
   heartCells=[[3710,470,1,0]];msg='A aventura continua pelas ruinas conectadas.';msgTime=3;
 }
 loadLevel();
+let lastEnemyCount=enemies.length;
+setInterval(()=>{if(!started||paused||victory)return;const alive=enemies.filter(e=>e[4]).length;if(alive>lastEnemyCount){lastEnemyCount=alive;combo=0;comboTimer=0;}else if(alive<lastEnemyCount){lastEnemyCount=alive;combo++;comboTimer=3.2;const multiplier=1+Math.min(4,Math.max(0,combo-1))*.25;score+=Math.round(100*multiplier);if(combo>1){msg=`COMBO x${combo}! Multiplicador ${multiplier.toFixed(2)}x`;msgTime=1.1;}}},100);
+setInterval(()=>{if(score>bestScore){bestScore=score;localStorage.setItem('vidaDeHeroiBest',String(bestScore));}},250);
 function floor(){return platforms.some(p=>hero.x>p[0]-18&&hero.x<p[0]+p[2]+18&&Math.abs(hero.y+35-p[1])<5)}
 function isBoss(e){return e[6]===3||e[6]===7}
 function animatePlatforms(){platforms.forEach(p=>{if(p[4]==='moving')p[1]=p[5]+Math.sin(time*1.6+p[7])*p[6];if(p[4]==='boat'){if(p[5]===undefined)p[5]=p[1];p[1]=p[5]+Math.sin(time*2.2+p[0]*.02)*5;}if(p[4]==='fragile'&&p[8]>0){p[8]-=.016;if(p[8]<=0)p[1]=FLOOR+180;}})}
