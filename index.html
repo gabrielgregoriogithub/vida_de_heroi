@@ -11,10 +11,12 @@
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
-    body { margin:0; min-height:100vh; display:grid; place-items:center; background:#080d19; color:#d7e1ec; font-family:system-ui,sans-serif; overscroll-behavior:none; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; background:radial-gradient(circle at 50% 0%,#172744 0,#0b1222 42%,#050812 100%); color:#d7e1ec; font-family:system-ui,sans-serif; overscroll-behavior:none; }
     main { width:min(1152px,100vw); padding:14px; }
     h1 { margin:0 0 8px; color:#f4d37d; font-size:clamp(20px,3vw,30px); }
-    .wrap { position:relative; width:100%; aspect-ratio:16/9; border:2px solid #384763; box-shadow:0 0 40px #050912; background:#10182c; }
+    .wrap { position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border:2px solid #53627d; border-radius:10px; box-shadow:0 0 0 1px rgba(125,230,255,.12),0 0 40px #050912,0 18px 60px rgba(0,0,0,.35); background:#10182c; }
+    .wrap::after { content:""; position:absolute; inset:0; pointer-events:none; background:radial-gradient(ellipse at center,transparent 55%,rgba(2,5,14,.32) 100%),linear-gradient(90deg,rgba(125,230,255,.05),transparent 18%,transparent 82%,rgba(255,91,119,.04)); mix-blend-mode:screen; }
+    .wrap.resonating { border-color:#d88bff; box-shadow:0 0 0 2px rgba(216,139,255,.45),0 0 42px rgba(216,139,255,.75),0 18px 70px rgba(125,80,190,.32); }
     canvas { display:block; width:100%; height:100%; image-rendering:auto; touch-action:none; }
     .help { margin-top:8px; color:#9aaac2; font-size:13px; text-align:center; }
     .touch { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px; user-select:none; touch-action:none; }
@@ -69,7 +71,7 @@ const touchGroups=document.querySelectorAll('.touch .group');touchGroups[0].clas
 jumpButton.textContent='CIMA';
 const actionJumpButton=jumpButton.cloneNode(true);actionJumpButton.textContent='PULAR';actionJumpButton.setAttribute('aria-label','Pular');touchGroups[1].append(actionJumpButton);actionJumpButton.addEventListener('pointerdown',e=>{e.preventDefault();actionJumpButton.setPointerCapture?.(e.pointerId);unlockAudio();keys.add('Space');pressed.add('Space');});['pointerup','pointercancel','pointerleave','lostpointercapture'].forEach(type=>actionJumpButton.addEventListener(type,e=>{e.preventDefault();keys.delete('Space');}));
 const down=(...codes)=>codes.some(c=>keys.has(c)), hit=(...codes)=>codes.some(c=>pressed.has(c));
-let level=1, victory=false, started=false, paused=false, time=0, weapon=0, maxWeapon=0, shieldLevel=0, shieldHits=0, msg='Atravesse as ruinas e recupere as runas.',msgTime=4, totalRunes=0, score=0, combo=0, comboTimer=0, bestScore=Number(localStorage.getItem('vidaDeHeroiBest')||0), checkpoint=false, checkpointX=145, checkpointY=470,cameraX=0,shake=0,flash=0,bossWarning=0;
+let level=1, victory=false, started=false, paused=false, time=0, weapon=0, maxWeapon=0, shieldLevel=0, shieldHits=0, resonance=0, resonanceFx=0, msg='Atravesse as ruinas e recupere as runas.',msgTime=4, totalRunes=0, score=0, combo=0, comboTimer=0, bestScore=Number(localStorage.getItem('vidaDeHeroiBest')||0), checkpoint=false, checkpointX=145, checkpointY=470,cameraX=0,shake=0,flash=0,bossWarning=0;
 const hero={x:145,y:470,vx:0,vy:0,face:1,armor:0,hp:3,maxHp:3,inv:0,attack:0,attackCd:0,bowCd:0,charge:0,specialFx:0,dashCd:0,dashFx:0,jumps:0,jumpFx:0,jumpStyle:0};
 let platforms=[],enemies=[],runes=[],arrows=[],enemyShots=[],weapons=[],shieldPickups=[],particles=[],hazards=[],heartCells=[],heartDrops=[];
 function burst(x,y,color,count=10,power=90){for(let i=0;i<count;i++){const a=Math.random()*Math.PI*2,s=power*(.35+Math.random()*.8);particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-30,life:.35+Math.random()*.45,max:.8,size:2+Math.random()*4,color});}}
@@ -162,7 +164,7 @@ function drawChargeFx(){drawProgressHUD();const sx=hero.x-cameraX,sy=hero.y-20;i
 function drawHearts(x,y){for(let i=0;i<hero.maxHp;i++)text(i<hero.hp?'♥':'♡',x+i*20,y,20,i<hero.hp?'#ff718e':'#624254');}
 function drawUI(){drawChargeFx();ctx.fillStyle='rgba(3,5,10,.9)';ctx.fillRect(20,18,1112,76);text('VIDA DE HEROI',38,46,24,'#f4d37d');text('JORNADA CONTINUA',270,43,16,'#d7e1ec');drawHearts(38,76);const shieldText=shieldLevel?`ESCUDO ${shieldHits}/${shieldLevel===1?3:6}`:'SEM ESCUDO';text(`ARMADURA ${hero.armor+1}/3   |   ARMA: ${['ESPADA','ARCO','LANCA','CHAKRAM','TOCHA'][weapon]}   |   ${shieldText}`,145,74,17,'#ff8b82');text(`PONTOS ${score}`,505,43,15,'#f0c45d');text('A/D mover  SHIFT investida  W/ESPACO pular  J especial  L bloquear',650,74,13);if(msgTime&&!victory)text(msg,576,615,19,'#fff','center');const objective=runes.length?`RUNAS: ${runes.length} RESTANTES`:enemies.some(e=>e[4])?'DERROTE OS GUARDIOES':'PORTAO FINAL - SIGA EM FRENTE';text(objective,576,120,18,runes.length||enemies.some(e=>e[4])?'#7de6ff':'#9eea86','center');if(enemies.some(e=>e[4]&&e[6]===3))text(enemies.find(e=>e[6]===3&&e[4]&&e[5]<=6)?'FASE DE FURIA':'REI DO ECLIPSE',870,145,14,'#ff82e3','center');if(bossWarning>0)text('⚠ O REI PREPARA UM DISPARO',576,170,16,'#ff667f','center');if(checkpoint)text('CHECKPOINT ATIVO',1050,120,13,'#9eea86','right');}
 let last=0;function loop(now){const dt=Math.min(.033,(now-last)/1000||0);last=now;update(dt);draw();pressed.clear();requestAnimationFrame(loop);}requestAnimationFrame(loop);if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-const restartGame=()=>{hero.hp=3;hero.maxHp=3;hero.armor=0;weapon=0;maxWeapon=0;shieldLevel=0;shieldHits=0;totalRunes=0;score=0;combo=0;comboTimer=0;started=true;paused=false;victory=false;loadLevel();lastEnemyCount=enemies.length;msg='A nova aventura comeca!';msgTime=2;};
+const restartGame=()=>{hero.hp=3;hero.maxHp=3;hero.armor=0;weapon=0;maxWeapon=0;shieldLevel=0;shieldHits=0;resonance=0;resonanceFx=0;totalRunes=0;score=0;combo=0;comboTimer=0;started=true;paused=false;victory=false;loadLevel();lastEnemyCount=enemies.length;resonanceRunes=runes.length;document.querySelector('.wrap')?.classList.remove('resonating');msg='A nova aventura comeca!';msgTime=2;};
 addEventListener('keydown',e=>{if(e.code==='KeyQ'&&!e.repeat&&started&&!paused&&!victory){weapon=(weapon+1)%(maxWeapon+1);msg='Arma equipada: '+['ESPADA','ARCO','LANCA','CHAKRAM','TOCHA'][weapon];msgTime=1.2;playSfx('collect');}});
 setInterval(()=>{if(!weapons.length)return;weapons.forEach(item=>{if(!item[3])maxWeapon=Math.max(maxWeapon,item[2]);});},250);
 addEventListener('keydown',e=>{if(e.code==='KeyR'&&!e.repeat)restartGame();});
@@ -170,6 +172,12 @@ const restartButton=document.createElement('button');restartButton.type='button'
 const recordLabel=document.createElement('span');recordLabel.style.cssText='display:inline-flex;align-items:center;padding:8px 10px;color:#f0c45d;font-weight:700;font-size:13px';document.querySelector('.utility')?.append(recordLabel);setInterval(()=>{recordLabel.textContent=`🏆 RECORDE: ${bestScore}`;},250);
 document.querySelector('.help')?.insertAdjacentText('beforeend','  |  Q trocar arma  |  R reiniciar');
 addEventListener('blur',()=>{keys.clear();pressed.clear();});document.addEventListener('visibilitychange',()=>{if(document.hidden&&started)paused=true;});
+let resonanceRunes=runes.length;
+function activateResonance(){if(!started||paused||victory||resonance<=0||resonanceFx>0)return;resonance--;resonanceFx=2.8;hero.inv=2.8;enemyShots=[];bossWarning=0;shake=.42;flash=.18;score+=250;msg='RESSONANCIA DO VAZIO';msgTime=2;burst(hero.x,hero.y-20,'#d88bff',50,240);document.querySelector('.wrap')?.classList.add('resonating');}
+addEventListener('keydown',e=>{if(e.code==='KeyK'&&!e.repeat)activateResonance();});
+const resonanceLabel=document.createElement('span');resonanceLabel.style.cssText='display:inline-flex;align-items:center;padding:8px 10px;color:#d88bff;font-weight:800;font-size:13px';document.querySelector('.utility')?.append(resonanceLabel);
+setInterval(()=>{if(runes.length>resonanceRunes)resonanceRunes=runes.length;if(runes.length<resonanceRunes){resonance=Math.min(3,resonance+1);msg=`Ressonancia carregada: ${resonance}/3`;msgTime=1.2;}resonanceRunes=runes.length;if(resonanceFx>0){resonanceFx=Math.max(0,resonanceFx-.1);hero.inv=Math.max(hero.inv,.12);burst(hero.x,hero.y-20,'#d88bff',3,70);if(resonanceFx===0)document.querySelector('.wrap')?.classList.remove('resonating');}resonanceLabel.textContent=`✦ VAZIO ${resonance}/3`;},100);
+document.querySelector('.help')?.insertAdjacentText('beforeend','  |  K ressonancia');
 </script>
 </body>
 </html>
