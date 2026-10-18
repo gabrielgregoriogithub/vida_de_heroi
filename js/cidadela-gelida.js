@@ -1,6 +1,6 @@
 // Cidadela Gelida: quinta regiao, liberada apos derrotar o Senhor das Caveiras.
 // Integra-se ao loop principal envolvendo loadLevel/update e as funcoes de desenho existentes.
-const FROST_ARENA = 11050, QUEEN_HOME = 11600, QUEEN_HP = 60;
+const FROST_END = 12100, FROST_ARENA = 11050, QUEEN_HOME = 11600, QUEEN_HP = 60;
 const FROST_TYPES = { golem: 12, mage: 13, wisp: 14, queen: 15, core: 16 };
 
 const frostArt = {};
@@ -22,7 +22,7 @@ function frostReset() {
   frost = {
     wings: false, amulet: false, flames: 0, flameReward: false, chill: 0, entered: false, gateMsg: 0,
     blizzard: { cd: 10, warn: 0, t: 0, dir: -1 }, arenaLocked: false, queenIntro: false, phase: 1,
-    queenDefeated: false, wingsDrop: null, ambush: false, lastAstral: 0, gliding: false,
+    queenDefeated: false, snowAlt: 0, snowTarget: 0, wingsDrop: null, ambush: false, lastAstral: 0, gliding: false,
     amuletChest: { x: 10670, y: 300, open: false },
     walls: [{ x: 10470, w: 44, top: 110, hp: 10, max: 10 }],
     braziers: [{ x: 9340, lit: false }, { x: 10260, lit: false }, { x: 10990, lit: false }],
@@ -157,6 +157,9 @@ function updateFrostHero(dt, pre) {
     hero.x = pre.x < w.x + w.w / 2 ? w.x - 16 : w.x + w.w + 16; hero.vx = 0;
     if (frost.gateMsg <= 0) { frostMsg('Muralha de gelo! Derreta com a TOCHA (Q troca arma) ou RUPTURA ASTRAL.', 2.4); frost.gateMsg = 4; }
   });
+  // Altitude da ultima superficie pisada: quanto mais alto, mais forte a neve.
+  if (floor()) frost.snowTarget = hero.x > FROST_START && hero.x < FROST_END ? Math.max(0, Math.min(1, (FLOOR - hero.y - 35) / 240)) : 0;
+  frost.snowAlt += (frost.snowTarget - frost.snowAlt) * Math.min(1, 1.4 * dt);
   if (frost.arenaLocked && hero.x < FROST_ARENA + 20) { hero.x = FROST_ARENA + 20; hero.vx = Math.max(0, hero.vx); }
   hero.x = Math.max(24, Math.min(WORLD_W - 24, hero.x));
 }
@@ -369,7 +372,7 @@ function updateQueen(q, dt) {
   }
   if ((q.drop -= dt) <= 0) {
     const xs = rage ? [hero.x - 150, hero.x, hero.x + 150] : [hero.x];
-    xs.forEach(x => frost.falling.push({ x: Math.max(FROST_ARENA + 40, Math.min(WORLD_W - 40, x)), y: 60, vy: 0, t: .85 }));
+    xs.forEach(x => frost.falling.push({ x: Math.max(FROST_ARENA + 40, Math.min(FROST_END - 40, x)), y: 60, vy: 0, t: .85 }));
     q.drop = rage ? 2.6 : 3.8;
   }
   if (rage && (q.wave -= dt) <= 0) {
@@ -416,7 +419,7 @@ function drawSprite(name, x, bottom, h, face, extra) {
 
 function drawFrostBackdrop() {
   if (cameraX + W < FROST_START) return;
-  const left = FROST_START, right = WORLD_W, view = cameraX;
+  const left = FROST_START, right = FROST_END, view = cameraX;
   ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); ctx.clip();
   const sky = ctx.createLinearGradient(0, 0, 0, H);
   sky.addColorStop(0, '#071228'); sky.addColorStop(.55, '#173a5c'); sky.addColorStop(1, '#0a1526');
@@ -453,7 +456,7 @@ function drawFrostBackdrop() {
   ctx.fillStyle = fade; ctx.fillRect(left, 0, 220, H);
   if (frost.arenaLocked || hero.x > FROST_ARENA - 400) {
     const pulse = .5 + .5 * Math.sin(time * 2);
-    ctx.fillStyle = `rgba(216,139,255,${.05 + pulse * .04})`; ctx.fillRect(FROST_ARENA, 0, WORLD_W - FROST_ARENA, H);
+    ctx.fillStyle = `rgba(216,139,255,${.05 + pulse * .04})`; ctx.fillRect(FROST_ARENA, 0, FROST_END - FROST_ARENA, H);
     ctx.fillStyle = '#2a4466'; ctx.fillRect(QUEEN_HOME - 90, FLOOR - 120, 180, 120);
     ctx.fillStyle = '#9fd8f0'; ctx.beginPath(); ctx.moveTo(QUEEN_HOME - 110, FLOOR - 120); ctx.lineTo(QUEEN_HOME - 60, FLOOR - 230); ctx.lineTo(QUEEN_HOME, FLOOR - 150); ctx.lineTo(QUEEN_HOME + 60, FLOOR - 230); ctx.lineTo(QUEEN_HOME + 110, FLOOR - 120); ctx.fill();
   }
@@ -464,11 +467,11 @@ function drawFrostTerrain() {
   if (cameraX + W < FROST_START - 60) return;
   const ground = ctx.createLinearGradient(0, FLOOR, 0, H);
   ground.addColorStop(0, '#5d86ad'); ground.addColorStop(.25, '#2c4a6d'); ground.addColorStop(1, '#101c30');
-  ctx.fillStyle = ground; ctx.fillRect(FROST_START, FLOOR, WORLD_W - FROST_START, H - FLOOR);
+  ctx.fillStyle = ground; ctx.fillRect(FROST_START, FLOOR, FROST_END - FROST_START, H - FLOOR);
   ctx.fillStyle = '#e8f4ff';
-  for (let x = Math.max(FROST_START, cameraX - 40); x < Math.min(WORLD_W, cameraX + W + 40); x += 36) { ctx.beginPath(); ctx.ellipse(x - x % 36 + 18, FLOOR + 2, 22, 7, 0, 0, 7); ctx.fill(); }
+  for (let x = Math.max(FROST_START, cameraX - 40); x < Math.min(FROST_END, cameraX + W + 40); x += 36) { ctx.beginPath(); ctx.ellipse(x - x % 36 + 18, FLOOR + 2, 22, 7, 0, 0, 7); ctx.fill(); }
   platforms.forEach(p => {
-    if (p[0] < FROST_START || p[0] > cameraX + W || p[0] + p[2] < cameraX) return;
+    if (p[0] < FROST_START || p[0] >= FROST_END || p[0] > cameraX + W || p[0] + p[2] < cameraX) return;
     const slab = ctx.createLinearGradient(0, p[1], 0, p[1] + p[3]);
     const aurora = p[4] === 'aurora';
     slab.addColorStop(0, aurora ? '#bfffe6' : '#bfe8fa'); slab.addColorStop(1, aurora ? '#6a4fa0' : '#3b6f99');
@@ -610,19 +613,29 @@ function drawGlacialPickup(item) {
 }
 
 function drawFrostAtmosphere() {
-  if (cameraX + W < FROST_START) return;
-  const b = frost.blizzard, startSx = Math.max(0, FROST_START - cameraX), storm = b.t > 0 ? 1 : b.warn > 0 ? .4 : 0;
-  for (let i = 0; i < 70 + storm * 60; i++) {
-    const drift = storm ? b.dir * time * 380 : Math.sin(time * .5 + i) * 30;
-    const sx = ((i * 137.5 + drift + time * 14) % W + W) % W, sy = (i * 91 + time * (36 + (i % 5) * 14)) % H;
-    if (sx < startSx) continue;
-    ctx.fillStyle = `rgba(240,248,255,${.35 + (i % 3) * .2})`; ctx.fillRect(sx, sy, 2 + (i % 2), 2 + (i % 2));
+  if (cameraX + W < FROST_START || cameraX > FROST_END) return;
+  const b = frost.blizzard, startSx = Math.max(0, FROST_START - cameraX), endSx = Math.min(W, FROST_END - cameraX);
+  const storm = b.t > 0 ? 1 : b.warn > 0 ? .4 : 0, alt = frost.snowAlt;
+  ctx.save(); ctx.beginPath(); ctx.rect(startSx, 0, endSx - startSx, H); ctx.clip();
+  // No chao a neve fica no nivel base; nas alturas ela engrossa, cai mais rapido e ganha vento.
+  const flakes = 70 + storm * 60 + Math.round(alt * 150), fall = 1 + alt * 1.3;
+  for (let i = 0; i < flakes; i++) {
+    const drift = storm ? b.dir * time * 380 : Math.sin(time * .5 + i) * 30 - alt * time * 120;
+    const sx = ((i * 137.5 + drift + time * 14) % W + W) % W, sy = (i * 91 + time * (36 + (i % 5) * 14) * fall) % H;
+    const size = 2 + (i % 2) + (alt > .5 && i % 4 === 0 ? 1.5 : 0);
+    ctx.fillStyle = `rgba(240,248,255,${.35 + (i % 3) * .2})`; ctx.fillRect(sx, sy, size, size);
+  }
+  if (alt > .05) {
+    ctx.fillStyle = `rgba(225,240,255,${.09 * alt})`; ctx.fillRect(startSx, 0, endSx - startSx, H);
+    ctx.strokeStyle = `rgba(240,248,255,${.22 * alt})`; ctx.lineWidth = 1.2;
+    for (let i = 0; i < Math.round(alt * 18); i++) { const sx = ((i * 263 - time * 520) % W + W) % W, sy = (i * 71 + time * 90) % H; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx + 46, sy - 10); ctx.stroke(); }
   }
   if (storm) {
-    ctx.fillStyle = `rgba(220,238,255,${.08 * storm + .04 * Math.sin(time * 8)})`; ctx.fillRect(startSx, 0, W - startSx, H);
+    ctx.fillStyle = `rgba(220,238,255,${.08 * storm + .04 * Math.sin(time * 8)})`; ctx.fillRect(startSx, 0, endSx - startSx, H);
     ctx.strokeStyle = `rgba(240,248,255,${.25 * storm})`; ctx.lineWidth = 1.5;
-    for (let i = 0; i < 24; i++) { const sx = ((i * 211 + time * b.dir * 900) % W + W) % W, sy = (i * 47) % H; if (sx < startSx) continue; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - b.dir * 60, sy - 8); ctx.stroke(); }
+    for (let i = 0; i < 24; i++) { const sx = ((i * 211 + time * b.dir * 900) % W + W) % W, sy = (i * 47) % H; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx - b.dir * 60, sy - 8); ctx.stroke(); }
   }
+  ctx.restore();
   if (frost.chill > 0) {
     const v = ctx.createRadialGradient(W / 2, H / 2, H * .35, W / 2, H / 2, H * .85);
     v.addColorStop(0, 'rgba(158,234,255,0)'); v.addColorStop(1, `rgba(158,234,255,${.22 * Math.min(1, frost.chill)})`);
@@ -632,7 +645,7 @@ function drawFrostAtmosphere() {
 
 function drawFrostUI() {
   if (!started || victory) return;
-  if (hero.x > FROST_START - 300 || frost.wings || frost.amulet) {
+  if (hero.x < FROST_END - 200 && (hero.x > FROST_START - 300 || frost.wings || frost.amulet)) {
     const chips = [
       [frost.wings ? 'ASAS ✓' : 'ASAS —', frost.wings ? '#8affc8' : '#5d6b80'],
       [frost.amulet ? 'AMULETO +1' : 'AMULETO ?', frost.amulet ? '#f0c45d' : '#5d6b80'],
