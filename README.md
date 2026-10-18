@@ -25,4 +25,6 @@ Explore os caminhos e encontre as cinco Memórias do Reino: elas aumentam sua vi
 
 Ao atravessar o Mar das Cinzas, prepare-se para o encontro opcional com o Guardião da Maré, uma arena especial com recompensa lendária.
 
+Nas profundezas da caverna existe a Vigília dos Espinhos. Derrote seus três sentinelas para desbloquear a Ruptura Astral (`I`), um golpe de área com recarga que atravessa a defesa dos inimigos.
+
 Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.
