@@ -41,6 +41,4 @@ Depois de derrotar o Senhor das Caveiras, o Portão Gélido se abre para a quint
 
 No celular, os botões `⇄ ARMA`, `✧ ASTRAL` e `✦ VAZIO` ficam na barra inferior.
 
-Os sprites da região foram gerados com SpriteCook; os IDs estão em `spritecook-assets.json`.
-
 Para jogar localmente, abra `index.html` no navegador. Para a versão Godot, abra o projeto com Godot 4 e execute `main.tscn`.
