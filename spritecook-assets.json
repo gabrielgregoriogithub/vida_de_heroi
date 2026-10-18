@@ -1,0 +1,41 @@
+{
+  "project_id": "69d05633-1d0c-4231-b76c-eeb6bb5f6916",
+  "assets": [
+    {
+      "asset_id": "33ffd713-0c6f-468f-8958-099ed067a30d",
+      "sha12": "78c198a5e24b",
+      "label": "frost-queen",
+      "file": "assets/frost/frost-queen.png"
+    },
+    {
+      "asset_id": "79e18251-48ad-4db9-b555-271860353db1",
+      "sha12": "04eff1c7ee28",
+      "label": "frost-golem",
+      "file": "assets/frost/frost-golem.png"
+    },
+    {
+      "asset_id": "ef6eda29-addc-4264-a815-fd8715dec291",
+      "sha12": "e3eff87b2a6a",
+      "label": "ice-mage",
+      "file": "assets/frost/ice-mage.png"
+    },
+    {
+      "asset_id": "ae0b361b-8851-4a0b-aa22-550c8b99459e",
+      "sha12": "63cdfdd7a582",
+      "label": "crystal-wisp",
+      "file": "assets/frost/crystal-wisp.png"
+    },
+    {
+      "asset_id": "59690677-ca21-453f-ba24-77618a4ee79b",
+      "sha12": "29adeb27c22c",
+      "label": "aurora-wings",
+      "file": "assets/frost/aurora-wings.png"
+    },
+    {
+      "asset_id": "39fb51c4-d9ee-4089-b558-f97a9ad707da",
+      "sha12": "2bf2c57f738c",
+      "label": "glacial-blade",
+      "file": "assets/frost/glacial-blade.png"
+    }
+  ]
+}

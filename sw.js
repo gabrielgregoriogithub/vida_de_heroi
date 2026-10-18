@@ -1,5 +1,7 @@
-const CACHE_NAME = 'vida-de-heroi-v3';
-const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './assets/vida-de-heroi-icon.png'];
+const CACHE_NAME = 'vida-de-heroi-v4';
+const CORE_FILES = ['./', './index.html', './manifest.webmanifest', './assets/vida-de-heroi-icon.png', './js/cidadela-gelida.js',
+  './assets/frost/frost-queen.png', './assets/frost/frost-golem.png', './assets/frost/ice-mage.png',
+  './assets/frost/crystal-wisp.png', './assets/frost/aurora-wings.png', './assets/frost/glacial-blade.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(CORE_FILES)));
